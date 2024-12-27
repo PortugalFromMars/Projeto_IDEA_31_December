@@ -44,6 +44,33 @@ fun Route.blogRoutes(blogRepository: BlogRepository) {
             }
         }
 
-        // ... other routes (PUT update, DELETE) for blog posts and comments
+        put("/{id}") {
+            val id = call.parameters["id"] ?: return@put call.respond(HttpStatusCode.BadRequest, "Missing ID")
+            try {
+                val updatedPost = call.receive<BlogPost>()
+                val success = blogRepository.updateBlogPost(id, updatedPost)
+                if (success) {
+                    call.respond(HttpStatusCode.OK, "Post updated successfully")
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Post not found")
+                }
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, "Error updating post: ${e.message}")
+            }
+        }
+
+        delete("/{id}") {
+            val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "Missing ID")
+            try {
+                val success = blogRepository.deleteBlogPost(id)
+                if (success) {
+                    call.respond(HttpStatusCode.OK, "Post deleted successfully")
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Post not found")
+                }
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, "Error deleting post: ${e.message}")
+            }
+        }
     }
 }
