@@ -1,5 +1,7 @@
+// Application.kt
 package com.example
 
+import com.example.repository.BlogRepository
 import com.example.repository.FirebaseBlogRepository
 import com.example.routes.blogRoutes
 import com.google.auth.oauth2.GoogleCredentials
@@ -15,7 +17,7 @@ import io.ktor.server.routing.*
 import java.io.FileInputStream
 
 fun main() {
-    initFirebase() // Initialize Firebase
+    initFirebase()
 
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
@@ -25,17 +27,19 @@ fun Application.module() {
     install(ContentNegotiation) {
         json()
     }
-    configureRouting() // Call your routing configuration
+
+    // Manual Dependency Injection (for now) - Consider using Koin or Kodein later
+    val blogRepository: BlogRepository = FirebaseBlogRepository()
+
+    configureRouting(blogRepository)
 }
 
-fun Application.configureRouting() {
-    val blogRepository = FirebaseBlogRepository() // Create repository instance
-
+fun Application.configureRouting(blogRepository: BlogRepository) {
     routing {
         get("/") {
             call.respondText("Hello, Ktor Blog!")
         }
-        blogRoutes(blogRepository) // Set up blog routes
+        blogRoutes(blogRepository)
     }
 }
 
@@ -45,7 +49,7 @@ private fun initFirebase() {
 
     val options = FirebaseOptions.builder()
         .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-        .setDatabaseUrl("your-firebase-database-url") // Replace with your database URL
+        // .setDatabaseUrl("your-firebase-database-url") // Remove or replace if not using Realtime Database
         .build()
 
     FirebaseApp.initializeApp(options)
