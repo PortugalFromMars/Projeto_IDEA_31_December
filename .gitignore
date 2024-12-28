@@ -1,0 +1,18 @@
+# Node.js modules
+node_modules/
+
+# Environment variables
+.env
+
+# Ignore all .json files in the Blog-Api/firebase directory
+Blog-Api/firebase/*.json
+
+# Ignore any other sensitive files
+*.env
+*.log
+
+# OS generated files (macOS)
+.DS_Store
+
+# IDE files (VS Code)
+.vscode/
